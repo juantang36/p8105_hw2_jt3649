@@ -12,11 +12,27 @@ library(readxl)
 
 
 ## Problem 1
-Import datasets. Read in the pols-month dataset. 
+Import datasets. 
 
+Read in the pols-month dataset and clean the names. 
 ```{r}
 pols_month_df = 
   read_csv("pols-month.csv")
 pol_month_df = 
-  janitor::clean_names(pols_month_df) #use clean_name function in the janitor package
+  #use clean_name function in the janitor package
+  janitor::clean_names(pols_month_df) |>
+  #use separate() to break up the variable mon. 
+  separate(mon, into = c("year", "month", "day"), sep = "-") |>
+  mutate(
+    #change the month number to name
+    month = as.integer(month),
+    month = month.name[month], 
+    #add president variable
+  )
 ```
+
+Use separate() to break up the variable mon. 
+```{r}
+
+```
+
