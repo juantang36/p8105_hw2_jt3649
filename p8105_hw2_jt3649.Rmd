@@ -18,7 +18,7 @@ Read in the pols-month dataset and clean the names.
 ```{r}
 pols_month_df = 
   read_csv("pols-month.csv")
-pol_month_df = 
+pols_month_df = 
   #use clean_name function in the janitor package
   janitor::clean_names(pols_month_df) |>
   #use separate() to break up the variable mon. 
@@ -28,8 +28,15 @@ pol_month_df =
     month = as.integer(month),
     month = month.name[month], 
     #add president variable
-  )
+    president = ifelse(prez_gop == 1, "gop", "dem")
+  ) |>
+  #remove prez_dem, prez_gop, day variable
+  select(-prez_dem, -prez_gop, -day) |>
+  #arrange the year, month order
+  arrange(year, month)
 ```
+
+Read in the snp dataset and clean the names. 
 
 Use separate() to break up the variable mon. 
 ```{r}
