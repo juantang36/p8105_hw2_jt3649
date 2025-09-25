@@ -14,7 +14,7 @@ library(readxl)
 ## Problem 1
 Import datasets. 
 
-Read in the pols-month dataset and clean the names. 
+Read in and clean the pols-month dataset and clean the names. 
 ```{r}
 pols_month_df = 
   read_csv("pols-month.csv")
@@ -25,7 +25,7 @@ pols_month_df =
   separate(mon, into = c("year", "month", "day"), sep = "-") |>
   mutate(
     #change the month number to name
-    month = as.integer(month),
+    month = as.numeric(month),
     month = month.name[month], 
     #add president variable
     president = ifelse(prez_gop == 1, "gop", "dem")
@@ -36,7 +36,7 @@ pols_month_df =
   arrange(year, month)
 ```
 
-Read in the snp dataset and clean the names. 
+Read in and clean the snp dataset and clean the names. 
 ```{r}
 snp_df = 
   read_csv("snp.csv")
@@ -57,6 +57,29 @@ snp_df =
   #remove day variable
   select(-day) |>
   #arrange the year, month order
+  arrange(year, month)
+```
+
+Read in and clean the unemployment dataset
+```{r}
+unemployment_df = 
+  read_csv("unemployment.csv") |>
+  pivot_longer(
+    #select all columns except "Year" to pivot
+    cols = -Year, 
+    #put the columns names into a new column "month"
+    names_to = "month", 
+    #put the unemployment_rate values into a new column "unemployment_rate"
+    values_to = "unemployment_rate"
+  ) |>
+  mutate(
+    #match the month abbreviation with month name
+    month = month.name[match(month, month.abb)], 
+    #match the column name year
+    year = Year
+  ) |>
+  select(year, month, unemployment_rate) |>
+  #arrange the year, month variable in order
   arrange(year, month)
 ```
 
