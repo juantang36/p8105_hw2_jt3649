@@ -334,8 +334,28 @@ merged_data = rental_price_tidy_unique |>
   ) |>
   #arrange by borough, neighborhood, zip code, and date
   arrange(borough, neighborhood, zip_code, date)
+cat("This is the merged dataset: ")
 merged_data
 ```
 
 Dataset summary
+Briefly describe the resulting tidy dataset. How many total observations exist? How many unique ZIP codes are included, and how many unique neighborhoods?
+
+Which ZIP codes appear in the ZIP code dataset but not in the Zillow Rental Price dataset? Using a few illustrative examples discuss why these ZIP codes might be excluded from the Zillow dataset.
+
+Rental prices fluctuated dramatically during the COVID-19 pandemic. For all available ZIP codes, compare rental prices in January 2021 to prices in January 2020. Make a table that shows the 10 ZIP codes (along with the borough and neighborhood) with largest drop in price from January 2020 to 2021. Comment.
+
+```{r dataset summary}
+n_observations = nrow(merged_data)
+n_unique_zips = n_distinct(merged_data$zip_code)
+n_unique_neighborhoods = n_distinct(merged_data$neighborhood)
+date_range = range(merged_data$date)
+cat("Total observations: ", n_observations)
+cat("Unique Zip codes: ", n_unique_zips)
+cat("Unique neighborhoods: ", n_unique_neighborhoods)
+cat("Date range: ", format(date_range[1]), "to", format(date_range[2]))
+```
+
+The final tidy dataset contains `r format(n_observations)` observations representing monthly rental price data for `r n_unique_zips` unique ZIP codes across `r n_unique_neighborhoods` neighborhoods in New York City. 
+The data spans from `r format(date_range[1])` to `r format(date_range[2])`. Each observation represents the Zillow Observed Rent Index (ZORI) for a specific ZIP code on a specific date.
 
