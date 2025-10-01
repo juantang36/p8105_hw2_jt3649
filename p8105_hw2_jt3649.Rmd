@@ -17,7 +17,7 @@ Import datasets.
 Read in and clean the pols-month dataset and clean the names. 
 ```{r}
 pols_month_df = 
-  read_csv("pols-month.csv")
+  read_csv("data/pols-month.csv")
 pols_month_df = 
   #use clean_name function in the janitor package
   janitor::clean_names(pols_month_df) |>
@@ -41,7 +41,7 @@ pols_month_df =
 Read in and clean the snp dataset and clean the names. 
 ```{r}
 snp_df = 
-  read_csv("snp.csv")
+  read_csv("data/snp.csv")
 snp_df = 
   #use clean_name function in the janitor package
   janitor::clean_names(snp_df) |>
@@ -65,7 +65,7 @@ snp_df =
 Read in and clean the unemployment dataset
 ```{r}
 unemployment_df = 
-  read_csv("unemployment.csv") |>
+  read_csv("data/unemployment.csv") |>
   pivot_longer(
     #select all columns except "Year" to pivot
     cols = -Year, 
@@ -99,4 +99,117 @@ This is the merged dataset:
 print(merged_data)
 ```
 
+Description of the dataset
+Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
+
+
+## Problem 2
+Read and clean the Mr. Trash Wheel data sheet
+```{r mr trash wheel}
+mr_trash_wheel_df = 
+  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+             sheet = "Mr. Trash Wheel", 
+             #include only columns with data
+             range = cell_cols("A:N"), 
+             #skip the first row which contains a figure
+             skip = 1
+             ) |>
+  janitor::clean_names() |>
+  #remove rows without dumpster data
+  filter(!is.na(dumpster)) |>
+  mutate(
+    #round the number of sports balls to the nearest integer
+    sports_balls = as.integer(round(sports_balls, 0)), 
+    year = as.numeric(year),
+    #add identifier variable
+    trash_wheel = "Mr. Trash Wheel"
+  )
+#number of observations in the mr_trash_wheel dataset
+cat("Mr. Trash Wheel observations: ", nrow(mr_trash_wheel_df))
+```
+
+Read and clean the Professor Trash Wheel data sheet 
+```{r prof trash wheel}
+prof_trash_wheel_df = 
+  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+             sheet = "Professor Trash Wheel", 
+             #include only columns with data
+             range = cell_cols("A:M"), 
+             #skip the first row which contains a figure
+             skip = 1
+             ) |>
+  janitor::clean_names() |>
+  #remove rows without dumpster data
+  filter(!is.na(dumpster)) |>
+  mutate(
+    #there is no sports_ball variable in the sheet
+    sports_balls = NA_integer_, 
+    #unify date formate
+    date = as.Date(date),
+    year = as.numeric(year),
+    #add identifier variable
+    trash_wheel = "Professor Trash Wheel"
+  )
+#number of observations in the prof_trash_wheel dataset
+cat("Professor Trash Wheel observations: ", nrow(prof_trash_wheel_df))
+```
+
+Read and clean the gwynnda trash wheel data sheet 
+```{r gwynnda}
+gwynnda_trash_wheel_df = 
+  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+             sheet = "Gwynnda Trash Wheel", 
+             #include only columns with data
+             range = cell_cols("A:L"), 
+             #skip the first row which contains a figure
+             skip = 1
+             ) |>
+  janitor::clean_names() |>
+  #remove rows without dumpster data
+  filter(!is.na(dumpster)) |>
+  mutate(
+    #there is no sports_ball variable in the sheet
+    sports_balls = NA_integer_, 
+    date = as.Date(date),
+    year = as.numeric(year),
+    #add identifier variable
+    trash_wheel = "Gwynnda Trash Wheel"
+  )
+#number of observations in the gwynnda_trash_wheel dataset
+cat("Gwynnda Trash Wheel observations: ", nrow(gwynnda_trash_wheel_df))
+```
+
+Combine datasets
+```{r combine datasets}
+combined_trash_wheel = bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynnda_trash_wheel_df) |>
+  arrange(trash_wheel, date)
+```
+
+Dataset summary
+
+The combined dataset has `r nrow(combined_trash_wheel)` observations. Example variables include `r paste(names(combined_trash_wheel), collapse = ", ")`.
+
+Total weight of trash collected by Professor Trash Wheel
+```{r professor weight}
+prof_total_weight = combined_trash_wheel |>
+  filter(trash_wheel == "Professor Trash Wheel") |>
+  summarise(total_weight = sum(weight_tons, na.rm = TRUE)) |>
+  pull(total_weight)
+prof_total_weight
+```
+Total weight of trash collected by Professor Trash Wheel is `r prof_total_weight` tons. 
+
+Cigarette Butts Collected by Gwynnda in June 2022
+```{r}
+gwynnda_cigarette_june_2022 = combined_trash_wheel |>
+  filter(
+    trash_wheel == "Gwynnda Trash Wheel", 
+    year(date) == 2022, 
+    month(date) == 6
+  ) |>
+  summarize(total_cig = sum(cigarette_butts, na.rm = TRUE)) |>
+  pull(total_cig)
+gwynnda_cigarette_june_2022
+```
+Cigarette Butts Collected by Gwynnda in June 2022 are `r gwynnda_cigarette_june_2022`. 
