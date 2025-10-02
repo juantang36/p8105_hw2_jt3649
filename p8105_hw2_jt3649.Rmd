@@ -12,7 +12,7 @@ library(readxl)
 
 
 ## Problem 1
-Import datasets. 
+### Import datasets. 
 
 Read in and clean the pols-month dataset and clean the names. 
 ```{r}
@@ -27,7 +27,7 @@ pols_month_df =
     #change the month number to name
     month = as.numeric(month),
     month = month.name[month], 
-    #convert year avriable to numeric value
+    #convert year variable to numeric value
     year = as.numeric(year),
     #add president variable
     president = ifelse(prez_gop == 1, "gop", "dem")
@@ -85,7 +85,7 @@ unemployment_df =
   arrange(year, month)
 ```
 
-Merge the datasets
+### Merge the datasets
 ```{r}
 merged_data = pols_month_df |>
   #merge snp into pols
@@ -99,7 +99,7 @@ This is the merged dataset:
 print(merged_data)
 ```
 
-Description of the dataset
+### Description of the dataset
 Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
 
@@ -108,7 +108,7 @@ Explain briefly what each dataset contained, and describe the resulting dataset 
 Read and clean the Mr. Trash Wheel data sheet
 ```{r mr trash wheel}
 mr_trash_wheel_df = 
-  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+  read_excel("data/202509 Trash Wheel Collection Data.xlsx",
              sheet = "Mr. Trash Wheel", 
              #include only columns with data
              range = cell_cols("A:N"), 
@@ -132,7 +132,7 @@ cat("Mr. Trash Wheel observations: ", nrow(mr_trash_wheel_df))
 Read and clean the Professor Trash Wheel data sheet 
 ```{r prof trash wheel}
 prof_trash_wheel_df = 
-  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+  read_excel("data/202509 Trash Wheel Collection Data.xlsx",
              sheet = "Professor Trash Wheel", 
              #include only columns with data
              range = cell_cols("A:M"), 
@@ -155,11 +155,11 @@ prof_trash_wheel_df =
 cat("Professor Trash Wheel observations: ", nrow(prof_trash_wheel_df))
 ```
 
-Read and clean the gwynnda trash wheel data sheet 
-```{r gwynnda}
-gwynnda_trash_wheel_df = 
-  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
-             sheet = "Gwynnda Trash Wheel", 
+Read and clean the gwynns trash wheel data sheet 
+```{r gwynns}
+gwynns_trash_wheel_df = 
+  read_excel("data/202509 Trash Wheel Collection Data.xlsx",
+             sheet = "Gwynns Falls Trash Wheel", 
              #include only columns with data
              range = cell_cols("A:L"), 
              #skip the first row which contains a figure
@@ -174,23 +174,23 @@ gwynnda_trash_wheel_df =
     date = as.Date(date),
     year = as.numeric(year),
     #add identifier variable
-    trash_wheel = "Gwynnda Trash Wheel"
+    trash_wheel = "Gwynns Trash Wheel"
   )
-#number of observations in the gwynnda_trash_wheel dataset
-cat("Gwynnda Trash Wheel observations: ", nrow(gwynnda_trash_wheel_df))
+#number of observations in the gwynns_trash_wheel dataset
+cat("Gwynns Trash Wheel observations: ", nrow(gwynns_trash_wheel_df))
 ```
 
-Combine datasets
+### Combine datasets
 ```{r combine datasets}
-combined_trash_wheel = bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynnda_trash_wheel_df) |>
+combined_trash_wheel = bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynns_trash_wheel_df) |>
   arrange(trash_wheel, date)
 ```
 
-Dataset summary
+### Dataset summary
 
 The combined dataset has `r nrow(combined_trash_wheel)` observations. Example variables include `r paste(names(combined_trash_wheel), collapse = ", ")`.
 
-Total weight of trash collected by Professor Trash Wheel
+### Total weight of trash collected by Professor Trash Wheel
 ```{r professor weight}
 prof_total_weight = combined_trash_wheel |>
   filter(trash_wheel == "Professor Trash Wheel") |>
@@ -200,23 +200,23 @@ prof_total_weight
 ```
 Total weight of trash collected by Professor Trash Wheel is `r prof_total_weight` tons. 
 
-Cigarette Butts Collected by Gwynnda in June 2022
+### Cigarette Butts Collected by Gwynns in June 2022
 ```{r}
-gwynnda_cigarette_june_2022 = combined_trash_wheel |>
+gwynns_cigarette_june_2022 = combined_trash_wheel |>
   filter(
-    trash_wheel == "Gwynnda Trash Wheel", 
+    trash_wheel == "Gwynns Trash Wheel", 
     year(date) == 2022, 
     month(date) == 6
   ) |>
   summarize(total_cig = sum(cigarette_butts, na.rm = TRUE)) |>
   pull(total_cig)
-gwynnda_cigarette_june_2022
+gwynns_cigarette_june_2022
 ```
-Cigarette Butts Collected by Gwynnda in June 2022 are `r gwynnda_cigarette_june_2022`. 
+Cigarette Butts Collected by Gwynns in June 2022 are `r gwynns_cigarette_june_2022`. 
 
 
 ## Problem 3
-Import and clean data
+### Import and clean data
 ```{r}
 #Import rental price data
 rental_price_df = read_csv("data/zillow_data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv") |>
@@ -247,8 +247,7 @@ rental_price_tidy = rental_price_df |>
     date = str_replace_all(date, "_", "-"), 
     date = as.Date(date)
   ) |>
-    #remove rows with missing prices
-  filter(!is.na(price)) |>
+  rename("zip_code" = "region_name")|>
   #standardize the county names in rental_price
   mutate(
     county_name = str_remove(county_name, "County$"), 
@@ -261,7 +260,9 @@ rental_price_tidy = rental_price_df |>
       TRUE ~ county_name
       )
   )
+nrow(rental_price_tidy)
 ```
+
 
 Tidy zip code dataset
 ```{r zip code tidy}
@@ -286,69 +287,27 @@ zip_code_tidy = zip_code_df |>
       TRUE ~ county
       )
   )
+nrow(zip_code_tidy)
 ```
 
-Check for repeated data
-```{r}
-#repeated data in zip_code_tidy
-cat("Check for zip_code redundant data: ")
-zip_code_tidy |>
-  count(zip_code) |>
-  filter(n > 1) |>
-  print()
-#repeated data in rental_price_tidy
-cat("Check for zip_code redundant data: ")
-rental_price_tidy |>
-  count(region_name, date) |>
-  filter(n > 1) |>
-  print()
-```
-
-remove repeated data
-```{r}
-#Remove repeated data in zip_code
-zip_code_tidy_unique = zip_code_tidy |>
-  distinct(zip_code, .keep_all = TRUE)
-
-#there is no repeated data in rental_price_tidy
-rental_price_tidy_unique = rental_price_tidy
-```
-
-
-Merge datasets
-```{r merge_data}
-#merge datasets by zip code
-merged_data = rental_price_tidy_unique |>
+### Merge datasets
+```{r merged data}
+merged_data = rental_price_tidy |>
   left_join(
-    zip_code_tidy_unique, 
-    by = c("region_name" = "zip_code")
+    zip_code_tidy, 
+    by = "zip_code"
   ) |>
-  #organize columns in order, include only important variables
-  select(
-    zip_code = region_name, 
-    borough, 
-    neighborhood, 
-    county = county_name, 
-    date, 
-    price
-  ) |>
-  #arrange by borough, neighborhood, zip code, and date
   arrange(borough, neighborhood, zip_code, date)
 cat("This is the merged dataset: ")
 merged_data
 ```
 
-Dataset summary
-Briefly describe the resulting tidy dataset. How many total observations exist? How many unique ZIP codes are included, and how many unique neighborhoods?
-
-Which ZIP codes appear in the ZIP code dataset but not in the Zillow Rental Price dataset? Using a few illustrative examples discuss why these ZIP codes might be excluded from the Zillow dataset.
-
-Rental prices fluctuated dramatically during the COVID-19 pandemic. For all available ZIP codes, compare rental prices in January 2021 to prices in January 2020. Make a table that shows the 10 ZIP codes (along with the borough and neighborhood) with largest drop in price from January 2020 to 2021. Comment.
+### Dataset summary
 
 ```{r dataset summary}
 n_observations = nrow(merged_data)
 n_unique_zips = n_distinct(merged_data$zip_code)
-n_unique_neighborhoods = n_distinct(merged_data$neighborhood)
+n_unique_neighborhoods = n_distinct(merged_data$neighborhood, na.rm = TRUE)
 date_range = range(merged_data$date)
 cat("Total observations: ", n_observations)
 cat("Unique Zip codes: ", n_unique_zips)
@@ -356,6 +315,99 @@ cat("Unique neighborhoods: ", n_unique_neighborhoods)
 cat("Date range: ", format(date_range[1]), "to", format(date_range[2]))
 ```
 
-The final tidy dataset contains `r format(n_observations)` observations representing monthly rental price data for `r n_unique_zips` unique ZIP codes across `r n_unique_neighborhoods` neighborhoods in New York City. 
+The final tidy dataset contains `r format(n_observations)` observations representing monthly rental price data for `r n_unique_zips` unique ZIP codes. The dataset includes `r n_unique_neighborhoods` unique neighborhoods in New York City. 
 The data spans from `r format(date_range[1])` to `r format(date_range[2])`. Each observation represents the Zillow Observed Rent Index (ZORI) for a specific ZIP code on a specific date.
+
+### Zip codes in zip_code dataset but not in rental_price dataset
+```{r}
+missing_zip = zip_code_tidy |>
+  anti_join(
+    rental_price_tidy, 
+    by = c("zip_code")
+  ) |>
+  select(zip_code, borough, neighborhood) |>
+  arrange(borough, neighborhood)
+missing_zip
+cat("Number of zip codes missing from Zillow data but included in zip_code data: ", nrow(missing_zip))
+```
+
+Example of missing zip codes: 
+```{r}
+cat("Sample of ZIP Codes Missing from Zillow Dataset:\n\n")
+head(missing_zip, 15)
+```
+
+### Using a few illustrative examples discuss why these ZIP codes might be excluded from the Zillow dataset.
+1. Based on the sample of missing ZIP codes, some of them have "NA" for neighborhood (eg. 10499, 10550, 10704, 10705, 10803). 
+For example, ZIP code 10499 locates in the Bronx and it serves the Co-op City neighborhood, which is unique for a large residential complex, not a traditional geographical area. Also, 10550 is located in Mount Vernon, Westchester County, NY. It is a city bordering NYC but not part of it. This ZIP code may have been incorrectly included n the NYC ZIP code dataset.
+2. For those ZIP code with neighborhood information, the missing from zillow dataset may due to the low rental market activity.
+
+
+### Compare rental prices in January 2021 to prices in January 2020
+```{r covid_compare}
+#filter for Jan 2020 and Jan 2021
+covid_compare = merged_data |>
+  filter(
+    (year(date) == 2020 & month(date) == 1) | 
+    (year(date)) == 2021 & month(date) == 1) |>
+  select(zip_code, borough, neighborhood, date, price) |>
+  #pivot wider to compare the two time points
+  pivot_wider(
+    names_from = date, 
+    values_from = price
+  )
+
+jan_2020_col = names(covid_compare) [str_detect(names(covid_compare), "2020-01")]
+jan_2021_col = names(covid_compare) [str_detect(names(covid_compare), "2021-01")]
+
+#rename for clarity
+covid_compare = covid_compare |>
+  rename(
+    price_jan_2020 = all_of(jan_2020_col), 
+    price_jan_2021 = all_of(jan_2021_col)
+  ) |>
+  #remove rows with missing data
+  filter(!is.na(price_jan_2020) & !is.na(price_jan_2021)) |>
+  #calculate price changes
+  mutate(
+    price_change = price_jan_2021 - price_jan_2020, 
+    pct_change = (price_change/price_jan_2020)*100
+  )
+```
+
+Top 10 drop in rental price during covid
+```{r top_10_drops}
+top_10_drops = covid_compare |>
+  arrange(price_change) |>
+  slice_head(n=10) |>
+  select(
+    zip_code, 
+    borough, 
+    neighborhood, 
+    price_jan_2020, 
+    price_jan_2021, 
+    price_change, 
+    pct_change
+  )
+```
+
+Display the table: 
+```{r display_table}
+cat("Top 10 ZIP Codes with Largest Rental Price Drops (Jan 2020 to Jan 2021)")
+top_10_drops |>
+  mutate(
+    #add units, round to the nearest integer (price), round to one decimal place (percent change)
+    price_jan_2020 = scales::dollar(price_jan_2020, accuracy = 1), 
+    price_jan_2021 = scales::dollar(price_jan_2021, accuracy = 1),
+    price_change = scales::dollar(price_change, accuracy = 1), 
+    pct_change = paste0(round(pct_change, 1), "%")
+  )
+```
+
+### Comment on price drop during covid
+From the table, it is observed that the largest price drops are mostly located in Manhattan, especially neighborhoods that were traditionally popular. This geographic concentration suggests that the pandemic affected the rental market with high density and high-cost (eg. lower Manhattan). Due to pandemic, many people work remotely. They likely relocated to less expensive areas or larger space outside the city center. During the pandemic's peak, dense urban environment were perceived as higher risk. Residents tend to move to less crowded areas. 
+The drop in rental price can be contributed to various factors such as the remote work feasibility, health concerns about urban density, and the decreasing demand of urban facilities during covid. 
+
+
+
 
