@@ -109,10 +109,11 @@ The `unemployment` dataset contained monthly unemployment rates from `r min(unem
 The final merged dataset contains `r nrow(merged_data_p1)` observations and `r ncol(merged_data_p1)` variables from `r min(merged_data_p1$year)` to `r max(merged_data_p1$year)`. Key variables include `r paste(names(merged_data_p1), collapse = ", ")`. 
 This merged dataset allows for analysis of the relationships between political composition of government, stock market performance, and unemployment rates over time.
 
-## Problem 2
-
 
 ## Problem 2
+
+### Read and clean datasets
+
 Read and clean the Mr. Trash Wheel data sheet
 ```{r mr trash wheel}
 mr_trash_wheel_df = 
@@ -196,7 +197,10 @@ combined_trash_wheel = bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynns_
 
 ### Dataset summary
 
-The combined dataset has `r nrow(combined_trash_wheel)` observations. Example variables include `r paste(names(combined_trash_wheel), collapse = ", ")`.
+This dataset contains information about trash collected by three water-wheel vessels that remove trash from the Inner Harbor in Baltimore, Maryland. The combined dataset has `r nrow(combined_trash_wheel)` observations and `r ncol(combined_trash_wheel)` variables. The dataset includes data from `r min(combined_trash_wheel$year)` to `r max(combined_trash_wheel$year)`.  Variables include specific type of trash, date, total weight of trash, and dumpster, which is the identifier for each dumpster load. 
+Variables in the merged dataset are: `r paste(names(combined_trash_wheel), collapse = ", ")`.
+
+
 
 ### Total weight of trash collected by Professor Trash Wheel
 ```{r professor weight}
