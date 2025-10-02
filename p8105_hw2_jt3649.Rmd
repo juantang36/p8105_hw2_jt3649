@@ -36,6 +36,7 @@ pols_month_df =
   select(-prez_dem, -prez_gop, -day) |>
   #arrange the year, month order
   arrange(year, month)
+pols_month_df
 ```
 
 Read in and clean the snp dataset and clean the names. 
@@ -60,6 +61,7 @@ snp_df =
   select(-day) |>
   #arrange the year, month order
   arrange(year, month)
+snp_df
 ```
 
 Read in and clean the unemployment dataset
@@ -83,6 +85,7 @@ unemployment_df =
   select(year, month, unemployment_rate) |>
   #arrange the year, month variable in order
   arrange(year, month)
+unemployment_df
 ```
 
 ### Merge the datasets
@@ -193,13 +196,13 @@ cat("Gwynns Trash Wheel observations: ", nrow(gwynns_trash_wheel_df))
 ```{r combine datasets}
 combined_trash_wheel = bind_rows(mr_trash_wheel_df, prof_trash_wheel_df, gwynns_trash_wheel_df) |>
   arrange(trash_wheel, date)
+combined_trash_wheel
 ```
 
 ### Dataset summary
 
 This dataset contains information about trash collected by three water-wheel vessels that remove trash from the Inner Harbor in Baltimore, Maryland. The combined dataset has `r nrow(combined_trash_wheel)` observations and `r ncol(combined_trash_wheel)` variables. The dataset includes data from `r min(combined_trash_wheel$year)` to `r max(combined_trash_wheel$year)`.  Variables include specific type of trash, date, total weight of trash, and dumpster, which is the identifier for each dumpster load. 
 Variables in the merged dataset are: `r paste(names(combined_trash_wheel), collapse = ", ")`.
-
 
 
 ### Total weight of trash collected by Professor Trash Wheel
